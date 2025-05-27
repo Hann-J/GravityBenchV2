@@ -20,13 +20,14 @@ class Binary():
     def __init__(self, star1_mass, star2_mass, star1_pos, star2_pos, star1_momentum, 
                  star2_momentum, maxtime, max_observations, max_observations_per_request, 
                  filename, prompt, final_answer_units, drag_tau=None, 
-                 mod_gravity_exponent=None, units=('m', 's', 'kg'), skip_simulation=False):
+                 mod_gravity_exponent=None, units=('m', 's', 'kg'), face_on_projection=False, skip_simulation=False):
         """
         Initialize binary system with physical parameters and simulation settings
         Args:
             drag_tau: Linear drag coefficient (None = no drag)
             mod_gravity_exponent: Gravity law modification (None = Newtonian)
             units: Unit system for simulation (SI, Astronomical, or CGS)
+            face_on_projection: Projects the stars onto the x-y plane (z=0)
             skip_simulation: Load existing data instead of running new simulation
         """
         
@@ -91,7 +92,21 @@ class Binary():
         # Base prompt configuration
         self.full_table_tools_and_data_prompt = f"1. A DataFrame `df` containing columns: {', '.join(self.df.columns)}.\n2. A code interpreter with `df` pre-loaded that can execute Python code."
         self.row_wise_prompt = ""
-        self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position over time, (t,x,y,z), in units of {self.units_string}.
+
+        # Prompt without face_on_projection
+        if not face_on_projection:
+            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position over time, (t,x,y,z), in units of {self.units_string}.
+        
+### Problem Description
+{self.task}
+{self.final_answer_prompt}
+
+### Additional Instructions
+To complete this task, you have access to the following tools and data:"""
+
+        # Prompt with face-on projection
+        else:
+            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the x-y plane over time, (t,x,y,0), in units of {self.units_string}. You have into account the angle of inclination of the binary stars.
 
 ### Problem Description
 {self.task}
@@ -127,6 +142,7 @@ When using `Observe`:
 3. You can observe the system up to a total of {self.max_observations} times and you can observe up to {self.max_observations_per_request} times per observational request which is the maximum length of the `times_requested` list.
 4. After each observation, the dataframe `row_wise_results.df` will be updated. It contains columns: {', '.join(self.df.columns)}. You can access it using the code interpreter tool. For example, to access the first five rows, print(row_wise_results.df.head(n=5))""" 
 + self.end_prompt)
+
 
     def simulate(self, drag_tau=None, mod_gravity_exponent=None, units=('m', 's', 'kg')):
         """Run N-body simulation and save results to CSV files"""
@@ -299,12 +315,13 @@ When using `Observe`:
         self.units = ('m', 's', 'kg')
         self.sim.G = 6.67430e-11  # SI gravitational constant
 
-    def observe_row(self, times_requested: Union[float, List[float]], maximum_observations_per_request: int) -> str:
+    def observe_row(self, times_requested: Union[float, List[float]], maximum_observations_per_request: int, face_on_projection: bool) -> str:
         """
         Generate interpolated observations at requested times
         Args:
             times_requested: List of observation times
             maximum_observations_per_request: Max allowed per request
+            face_on_projection: Projection of stars onto xy plane
         Returns:
             Status message with observation results and remaining budget
         """
@@ -362,11 +379,18 @@ When using `Observe`:
                 cs_y2 = CubicSpline(times, y2)
                 cs_z2 = CubicSpline(times, z2)
 
-                # Get interpolated values
-                self.state = np.array([time, 
+                # Get interpolated values and check for projection
+                if face_on_projection:
+                    self.state = np.array([time, 
+                                     cs_x1(time), cs_y1(time), 0,
+                                     cs_x2(time), cs_y2(time), 0])
+                else: 
+                    self.state = np.array([time, 
                                      cs_x1(time), cs_y1(time), cs_z1(time),
                                      cs_x2(time), cs_y2(time), cs_z2(time)])
-                observations.append(self.state)
+            observations.append(self.state)
+
+                
 
         # Update observational dataframe
         new_rows = pd.DataFrame(observations, columns=['time', 'star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z'])
