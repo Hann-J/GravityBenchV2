@@ -2,8 +2,15 @@
 Configuration and setup for binary star system scenarios used in physics simulations.
 Handles scenario variations, orbital calculations, and integration with rebound N-body simulator.
 """
-
+import sys
 import os
+
+# Add project root to sys.path so Python can find generalscenarios/
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+
 import numpy as np
 from generalscenarios.Binary import Binary
 import importlib
@@ -281,3 +288,6 @@ def get_scenario_test_new_variation(scenario_name, new_variation, scenario_folde
     return importlib.import_module(
         f"{scenario_folder}.{scenario_name}"
     ).Scenario(new_variation)
+
+BinaryScenario('21.3 M, 3.1 M, xyz geomtry', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, -5e10], [-3e12, -8e12, 7e11], ellipticity=0.6)
+BinaryScenario.create_binary()
