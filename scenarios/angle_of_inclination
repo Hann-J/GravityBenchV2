@@ -59,7 +59,7 @@ class Scenario:
 
 
         # verification, inclinaiton is usually constant throughout the simulation, so we can use the first value
-        inc_rebound = df['inc'].iloc[0]
+        inc_rebound = df['inclination'].iloc[0]
         if verification:
             assert abs(empirical_inc - inc_rebound) < 0.01 * inc_rebound, f"{empirical_inc} and {inc_rebound} are not within 1% of each other"
         
@@ -67,8 +67,6 @@ class Scenario:
             return empirical_inc  # Return the calculated inclination if empirical value is requested
         else:
             return inc_rebound  # Return the rebound calculated inclination if not requesting empirical value
-
- 
 
 
 
