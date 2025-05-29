@@ -90,7 +90,7 @@ def calculate_velocities(df, binary_sim, verification=True, return_empirical=Fal
 
     if verification and return_empirical:
         for star in ['star1', 'star2']:
-            for axis in ['x', 'y, 'z' ]:
+            for axis in ['x', 'y,' 'z' ]:
                 v_calc = velocities[f'{star}_v{axis}']
                 v_stored = df[f'{star}_v{axis}']
                 percent_diff = (v_calc - v_stored) / v_stored
@@ -327,7 +327,6 @@ def calculate_time_of_pericenter_passage(df, binary_sim, verification=True, retu
         return time_pericenter_pass
     else:
         return df['time_of_pericenter_passage'].iloc[0] + df['orbital_period'].iloc[0]
-
 
 
 
