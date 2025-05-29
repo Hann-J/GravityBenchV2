@@ -229,7 +229,7 @@ When using `Observe`:
                 'star1_vx', 'star1_vy', 'star1_vz', 'star2_vx', 'star2_vy', 'star2_vz', 
                 'star1_mass', 'star2_mass', 'separation', 'force', 'star1_accel', 'star2_accel',
                 'specific_angular_momentum', 'orbital_period', 'mean_motion', 'semimajor_axis', 
-                'eccentricity', 'inclination', 'true_anomaly', 'mean_anomaly', 
+                'eccentricity', 'inclination', 'longitude_of_ascending_node', 'true_anomaly', 'mean_anomaly', 
                 'time_of_pericenter_passage', 'radial_distance_from_reference'
             ]
             writer_positions.writerow(header_positions)
@@ -263,7 +263,7 @@ When using `Observe`:
                     p1.vx, p1.vy, p1.vz, p2.vx, p2.vy, p2.vz,
                     p1.m, p2.m, separation, force, star1_accel, star2_accel,
                     orbit.h, orbit.P, orbit.n, orbit.a, orbit.e,
-                    orbit.inc, orbit.f, orbit.M, orbit.T, orbit.d
+                    orbit.inc, orbit.Omega ,orbit.f, orbit.M, orbit.T, orbit.d
                 ]
                 writer_detailed.writerow(data_detailed)
 
