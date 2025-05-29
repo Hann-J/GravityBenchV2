@@ -204,32 +204,32 @@ Msun = 1.989e30  # kg
 
 # Preconfigured scenario variations
 variations = {
-    '21.3 M, 3.1 M': BinaryScenario('21.3 M, 3.1 M', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 0], [-3e12, -8e12, 0], ellipticity=0.6),
-    '9.6 M, 3.1 M': BinaryScenario('9.6 M, 3.1 M', 9.6*Msun, 3.1*Msun, [-1e12, 6e12, 0], [-1e12, 3e12, 0], ellipticity=0.6),
-    '0.18 M, 0.63 M': BinaryScenario('0.18 M, 0.63 M', 0.18*Msun, 0.63*Msun, [7e11, 2e11, 0], [2e11, 1e11, 0], ellipticity=0.6),
-    '9.6 M, 3.1 M, Proper Motion': BinaryScenario('9.6 M, 3.1 M, Proper Motion', 9.6*Msun, 3.1*Msun, [4e12, 3e12, 0], [2e12, 3e12, 0], ellipticity=0.8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e3),
-    '9.6 M, 3.1 M, Proper Motion2': BinaryScenario('9.6 M, 3.1 M, Proper Motion2', 9.6*Msun, 3.1*Msun, [4e11, -4e11, 0], [7e11, -6e11, 0], ellipticity=0.9, proper_motion_direction=[2, -1, 0], proper_motion_magnitude=1e3),
+    '21.3 M, 3.1 M': BinaryScenario('21.3 M, 3.1 M', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 8e12], [-3e12, -8e12, -3e12], ellipticity=0.6),
+    '9.6 M, 3.1 M': BinaryScenario('9.6 M, 3.1 M', 9.6*Msun, 3.1*Msun, [-1e12, 6e12, 1e9], [-1e12, 3e12, 6.3e9], ellipticity=0.6),
+    '0.18 M, 0.63 M': BinaryScenario('0.18 M, 0.63 M', 0.18*Msun, 0.63*Msun, [7e11, 2e11, 7e11], [2e11, 1e11, -3e12], ellipticity=0.6),
+    '9.6 M, 3.1 M, Proper Motion': BinaryScenario('9.6 M, 3.1 M, Proper Motion', 9.6*Msun, 3.1*Msun, [4e12, 3e12, 5e12], [2e12, 3e12, -1e12], ellipticity=0.8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e3),
+    '9.6 M, 3.1 M, Proper Motion2': BinaryScenario('9.6 M, 3.1 M, Proper Motion2', 9.6*Msun, 3.1*Msun, [4e11, -4e11, -8e11], [7e11, -6e11, -1e11], ellipticity=0.9, proper_motion_direction=[2, -1, 0], proper_motion_magnitude=1e3),
 
     '9.6 M, 3.1 M, yrAUMsun': BinaryScenario('9.6 M, 3.1 M, yrAUMsun', 
                                          9.6, 3.1,  # In Msun
-                                         [-1e12/1.496e11, 6e12/1.496e11, 0], [-1e12/1.496e11, 3e12/1.496e11, 0],  # Convert m to AU
+                                         [-1e12/1.496e11, 6e12/1.496e11, -4e12/1.496e11], [-1e12/1.496e11, 3e12/1.496e11, 7e12/1.496e11],  # Convert m to AU
                                          ellipticity=0.6,
                                          units=('yr', 'AU', 'Msun')),
     '9.6 M, 3.1 M, cgs': BinaryScenario('9.6 M, 3.1 M, cgs', 
                                     9.6*Msun*1000, 3.1*Msun*1000,  # Convert kg to g
-                                    [-1e12*100, 6e12*100, 0], [-1e12*100, 3e12*100, 0],  # Convert m to cm
+                                    [-1e12*100, 6e12*100, 8e12*100], [-1e12*100, 3e12*100, -2e12*100],  # Convert m to cm
                                     ellipticity=0.6,
                                     units=('s', 'cm', 'g')),
 
-    '3.1 M, 0.18 M Elliptical': BinaryScenario('3.1 M, 0.18 M Elliptical', 3.1*Msun, 0.18*Msun, [4e10, -4e10, 0], [1.5e11, -7e10, 0], ellipticity=0.93),
-    '3.1 M, 0.18 M, Elliptical, Single Orbit': BinaryScenario('3.1 M, 0.18 M, Elliptical, Single Orbit', 3.1*Msun, 0.18*Msun, [4e10, -4e10, 0], [1.5e11, -7e10, 0], num_orbits=1, ellipticity=0.93),
-    '7.7 M, 4.9 M, Drag tau = 1.7e9': BinaryScenario('7.7 M, 4.9 M, Drag tau = 1.7e9', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 0], [1.5e11, 7e11, 0],  ellipticity=0.55, drag_tau=1.7e9, maxtime=7e8),
-    '7.7 M, 4.9 M, Drag tau = 8.3e8': BinaryScenario('7.7 M, 4.9 M, Drag tau = 8.3e8', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 0], [1.5e11, 7e11, 0],  ellipticity=0.55, drag_tau=8.3e8, maxtime=5e8),
-    '7.7 M, 4.9 M, Drag tau = 8.3e8 Proper Motion': BinaryScenario('7.7 M, 4.9 M, Drag tau = 8.3e8 Proper Motion', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 0], [1.5e11, 7e11, 0],  ellipticity=0.55, drag_tau=8.3e8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e4, maxtime=5e8),
-    '10.1 M, 5.6 M, Unbound': BinaryScenario('10.1 M, 5.6 M, Unbound', 10.1*Msun, 5.6*Msun, [-1e11, 7e11, 0], [1.5e11, 7e10, 0], maxtime=1e8, ellipticity=1.5),
-    '10.1M, 5.6 M, Modified Gravity 1.97': BinaryScenario('10.1M, 5.6 M, Modified Gravity 1.97', 10.1*Msun, 5.6*Msun, [5e10, 1e11, 0], [7.5e10, 3e10, 0], maxtime=9e7, ellipticity=0.8, mod_gravity_exponent=1.97),
-    '10.1M, 5.6 M, Modified Gravity 2.03': BinaryScenario('10.1M, 5.6 M, Modified Gravity 2.03', 10.1*Msun, 5.6*Msun, [5e10, 1e11, 0], [7.5e10, 3e10, 0], maxtime=2.3e8, ellipticity=0.8, mod_gravity_exponent=2.03),
-    '10.1M, 5.6 M, Modified Gravity 1.97 Proper Motion': BinaryScenario('10.1M, 5.6 M, Modified Gravity 1.97 Proper Motion', 10.1*Msun, 5.6*Msun, [5e10, 1e10, 0], [7.5e10, 3e10, 0], maxtime=2.4e7, ellipticity=0.8, mod_gravity_exponent=1.97, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e4)
+    '3.1 M, 0.18 M Elliptical': BinaryScenario('3.1 M, 0.18 M Elliptical', 3.1*Msun, 0.18*Msun, [4e10, -4e10, -2.2e10], [1.5e11, -7e10, 4.5e12], ellipticity=0.93),
+    '3.1 M, 0.18 M, Elliptical, Single Orbit': BinaryScenario('3.1 M, 0.18 M, Elliptical, Single Orbit', 3.1*Msun, 0.18*Msun, [4e10, -4e10, 8e10], [1.5e11, -7e10, -2e10], num_orbits=1, ellipticity=0.93),
+    '7.7 M, 4.9 M, Drag tau = 1.7e9': BinaryScenario('7.7 M, 4.9 M, Drag tau = 1.7e9', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 1e11], [1.5e11, 7e11, 7e11],  ellipticity=0.55, drag_tau=1.7e9, maxtime=7e8),
+    '7.7 M, 4.9 M, Drag tau = 8.3e8': BinaryScenario('7.7 M, 4.9 M, Drag tau = 8.3e8', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 9e11], [1.5e11, 7e11, -9e11],  ellipticity=0.55, drag_tau=8.3e8, maxtime=5e8),
+    '7.7 M, 4.9 M, Drag tau = 8.3e8 Proper Motion': BinaryScenario('7.7 M, 4.9 M, Drag tau = 8.3e8 Proper Motion', 7.7*Msun, 4.9*Msun, [1e11, 1e11, 4e11], [1.5e11, 7e11, 3e11],  ellipticity=0.55, drag_tau=8.3e8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e4, maxtime=5e8),
+    '10.1 M, 5.6 M, Unbound': BinaryScenario('10.1 M, 5.6 M, Unbound', 10.1*Msun, 5.6*Msun, [-1e11, 7e11, 4e11], [1.5e11, 7e10, -2e11], maxtime=1e8, ellipticity=1.5),
+    '10.1M, 5.6 M, Modified Gravity 1.97': BinaryScenario('10.1M, 5.6 M, Modified Gravity 1.97', 10.1*Msun, 5.6*Msun, [5e10, 1e11, 9e11], [7.5e10, 3e10, 6e11], maxtime=9e7, ellipticity=0.8, mod_gravity_exponent=1.97),
+    '10.1M, 5.6 M, Modified Gravity 2.03': BinaryScenario('10.1M, 5.6 M, Modified Gravity 2.03', 10.1*Msun, 5.6*Msun, [5e10, 1e11, 3e10], [7.5e10, 3e10, -6e10], maxtime=2.3e8, ellipticity=0.8, mod_gravity_exponent=2.03),
+    '10.1M, 5.6 M, Modified Gravity 1.97 Proper Motion': BinaryScenario('10.1M, 5.6 M, Modified Gravity 1.97 Proper Motion', 10.1*Msun, 5.6*Msun, [5e10, 1e10, 6e10], [7.5e10, 3e10, 4e9], maxtime=2.4e7, ellipticity=0.8, mod_gravity_exponent=1.97, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e4)
 }
 # Define scenarios with their variations
 #load scenarios_config.json
@@ -289,5 +289,9 @@ def get_scenario_test_new_variation(scenario_name, new_variation, scenario_folde
         f"{scenario_folder}.{scenario_name}"
     ).Scenario(new_variation)
 
-BinaryScenario('21.3 M, 3.1 M, xyz geomtry', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, -5e10], [-3e12, -8e12, 7e11], ellipticity=0.6)
-BinaryScenario.create_binary()
+#for variation in variations.values():
+#    variation.create_binary(
+#        "Test scenario creation",
+#        "('m', 's', 'kg')",
+#        skip_simulation=False
+#    )

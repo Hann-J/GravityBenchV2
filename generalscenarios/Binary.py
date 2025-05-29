@@ -106,7 +106,8 @@ To complete this task, you have access to the following tools and data:"""
 
         # Prompt with face-on projection
         else:
-            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the x-y plane over time, (t,x,y,0), in units of {self.units_string}. You have into account the angle of inclination of the binary stars.
+            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the x-y plane over time, (t,x,y,0), in units of {self.units_string}. 
+            You have to take into account the angle of inclination and the longitude of ascending node of the orbital plane, which can greatly affect the problem you are tasked to solve.
 
 ### Problem Description
 {self.task}
