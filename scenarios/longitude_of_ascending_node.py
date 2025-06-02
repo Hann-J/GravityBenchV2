@@ -34,7 +34,7 @@ class Scenario:
 
 
         # If inclination is zero, the longitude of ascending node will also be zero
-        if df['z'] == 0:
+        if (df['star1_z'] == 0).all() and (df['star2_z'] == 0).all():
             empirical_long = 0
 
         else: 
@@ -57,18 +57,19 @@ class Scenario:
             h_y  = (df['rel_z'] * df['rel_vx'] - df['rel_x'] * df['rel_vz']).mean()
             h_z = (df['rel_x'] * df['rel_vy'] - df['rel_y'] * df['rel_vx']).mean()
         
+            # Compute the unit vector of specific angular momentum vector
             h_magnitude = np.sqrt(h_x**2 + h_y**2 + h_z**2)
-        
             h = np.array([h_x, h_y, h_z]) / h_magnitude
+            #vector pointing to the ascending node is perpendicular to the specific angular momentum vector and lies in the xy-plane
+            n = np.cross([0, 0, 1], h)  # Cross product with z-axis unit vector to get the node vector in the xy-plane
 
             # Calculate the longitude of ascending node
-            empirical_long = np.arctan2(h[2], h[1]) % (2 * np.pi) # Ensures radian is positive, measured from the positive x-axis
-
+            empirical_long = np.arctan2(n[1], n[0]) 
 
         # verification, the angle is usually constant throughout the simulation
         Omega_rebound = df['longitude_of_ascending_node'].mean()
         if verification:
-            assert abs(empirical_long - Omega_rebound) < 0.01 * Omega_rebound, f"{empirical_long} and {Omega_rebound} are not within 1% of each other"
+            assert abs(empirical_long - Omega_rebound) < 0.01 * abs(Omega_rebound), f"{empirical_long} and {Omega_rebound} are not within 1% of each other"
         
         if return_empirical:
             return empirical_long  # Return the calculated inclination if empirical value is requested
