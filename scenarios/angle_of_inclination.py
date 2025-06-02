@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import scripts.task_utils as task_utils
 
-#Angle of inclination, as included in rebound, calculataed as the angle between orbital plane and xy-reference plane measured from the positive x-axis
+#Angle of inclination, as included in rebound, calculataed as the angle between orbital plane and the positive x-axis. 
 #Angle are in radians
 #Assumes that inclination is constant throughout
 
@@ -51,11 +51,13 @@ class Scenario:
         h_x = (df['rel_y'] * df['rel_vz'] - df['rel_z'] * df['rel_vy']).mean()
         h_y  = (df['rel_z'] * df['rel_vx'] - df['rel_x'] * df['rel_vz']).mean()
         h_z = (df['rel_x'] * df['rel_vy'] - df['rel_y'] * df['rel_vx']).mean()
+
+        #computer the specific angular momentum vector
         h_magnitude = np.sqrt(h_x**2 + h_y**2 + h_z**2)
         h = np.array([h_x, h_y, h_z]) / h_magnitude
 
-        # Calculate the inclination angle by projecting unit vector onto xz plane
-        empirical_inc = np.arctan2(h[2], h[1]) % (2 * np.pi) # Ensures radian is positive, measured from the positive x-axis
+        # Calculate the inclination angle, this is done through the angle between the positive z-axis and the z-component unit vector of the specific angular momentum vector
+        empirical_inc = np.arccos(h[2]) # Ensures radian is positive, measured from the positive z-axis
 
 
         # verification, inclinaiton is usually constant throughout the simulation, so we can use the first value
@@ -67,13 +69,4 @@ class Scenario:
             return empirical_inc  # Return the calculated inclination if empirical value is requested
         else:
             return inc_rebound  # Return the rebound calculated inclination if not requesting empirical value
-
-
-
-#        # Projection approach if there is no rotation of orbital plane about the z axis
-#        df['empirical_inc'] = np.arctan2(df['star1_z'] - df['star2_z'], df['star1_x'] - df['star2_x'])
-#
-#        #Ensures radian is positive, measured from the positive x-axis
-#        df['empirical_inc'] = df['empirical_inc'] % (2 * np.pi)
-#        mean_empirical_inc = df['empirical_inc'].mean()
-#        
+        
