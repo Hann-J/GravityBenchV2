@@ -317,7 +317,7 @@ When using `Observe`:
         self.units = ('m', 's', 'kg')
         self.sim.G = 6.67430e-11  # SI gravitational constant
 
-    def observe_row(self, times_requested: Union[float, List[float]], maximum_observations_per_request: int, face_on_projection: bool) -> str:
+    def observe_row(self, times_requested: Union[float, List[float]], maximum_observations_per_request: int) -> str:
         """
         Generate interpolated observations at requested times
         Args:
@@ -382,7 +382,7 @@ When using `Observe`:
                 cs_z2 = CubicSpline(times, z2)
 
                 # Get interpolated values and check for projection onto the yz plane
-                if face_on_projection:
+                if self.face_on_projection:
                     self.state = np.array([time, 
                                      0, cs_y1(time), cs_z1(time),
                                      0, cs_y2(time), cs_z2(time)])
