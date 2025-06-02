@@ -11,7 +11,7 @@ class Scenario:
     def __init__(self, scenario_creator, skip_simulation=False):
         self.scenario_creator = scenario_creator
 
-        prompt = """Determine the angle of inclination of system's orbit."""
+        prompt = """Determine the angle of inclination of system's orbit. Take the xy plane as the reference plane, and measure the angle from the positive x-axis."""
         final_answer_units = "rad"
 
         self.binary_sim = self.scenario_creator.create_binary(prompt, final_answer_units, skip_simulation=skip_simulation)
@@ -54,7 +54,7 @@ class Scenario:
         h_magnitude = np.sqrt(h_x**2 + h_y**2 + h_z**2)
         h = np.array([h_x, h_y, h_z]) / h_magnitude
 
-        # Calculate the inclination angle
+        # Calculate the inclination angle by projecting unit vector onto xz plane
         empirical_inc = np.arctan2(h[2], h[1]) % (2 * np.pi) # Ensures radian is positive, measured from the positive x-axis
 
 
