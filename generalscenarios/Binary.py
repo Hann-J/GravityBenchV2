@@ -27,7 +27,7 @@ class Binary():
             drag_tau: Linear drag coefficient (None = no drag)
             mod_gravity_exponent: Gravity law modification (None = Newtonian)
             units: Unit system for simulation (SI, Astronomical, or CGS)
-            face_on_projection: Projects the stars onto the x-y plane (z=0)
+            face_on_projection: Projects the stars onto the yz plane (x=0). The computer is looking at the system along the positive x-axis.
             skip_simulation: Load existing data instead of running new simulation
         """
         
@@ -48,6 +48,7 @@ class Binary():
         self.drag_tau = drag_tau  # Linear drag coefficient
         self.mod_gravity_exponent = mod_gravity_exponent  # Gravity law modification
         self.units = units  # Unit system tuple
+        self.face_on_projection = face_on_projection  # Projection onto the y-z plane
 
         # Initialize REBOUND simulation
         self.sim = rebound.Simulation()
@@ -94,7 +95,7 @@ class Binary():
         self.row_wise_prompt = ""
 
         # Prompt without face_on_projection
-        if not face_on_projection:
+        if not self.face_on_projection:
             self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position over time, (t,x,y,z), in units of {self.units_string}.
         
 ### Problem Description
@@ -106,7 +107,7 @@ To complete this task, you have access to the following tools and data:"""
 
         # Prompt with face-on projection
         else:
-            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the x-y plane over time, (t,x,y,0), in units of {self.units_string}. 
+            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the y-z plane over time, (t,0,y,z), in units of {self.units_string}. 
             You have to take into account the angle of inclination and the longitude of ascending node of the orbital plane, which can greatly affect the problem you are tasked to solve.
 
 ### Problem Description
@@ -322,7 +323,7 @@ When using `Observe`:
         Args:
             times_requested: List of observation times
             maximum_observations_per_request: Max allowed per request
-            face_on_projection: Projection of stars onto xy plane
+            face_on_projection: Projection of stars onto yz plane
         Returns:
             Status message with observation results and remaining budget
         """
@@ -380,11 +381,11 @@ When using `Observe`:
                 cs_y2 = CubicSpline(times, y2)
                 cs_z2 = CubicSpline(times, z2)
 
-                # Get interpolated values and check for projection
+                # Get interpolated values and check for projection onto the yz plane
                 if face_on_projection:
                     self.state = np.array([time, 
-                                     cs_x1(time), cs_y1(time), 0,
-                                     cs_x2(time), cs_y2(time), 0])
+                                     0, cs_y1(time), cs_z1(time),
+                                     0, cs_y2(time), cs_z2(time)])
                 else: 
                     self.state = np.array([time, 
                                      cs_x1(time), cs_y1(time), cs_z1(time),
