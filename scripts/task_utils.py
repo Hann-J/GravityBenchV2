@@ -329,5 +329,227 @@ def calculate_time_of_pericenter_passage(df, binary_sim, verification=True, retu
         return df['time_of_pericenter_passage'].iloc[0] + df['orbital_period'].iloc[0]
 
 
+def random_geometry(df, binary_sim, verification=True):
+    """
+    Randomly transform the geometry of the binary system from a xy orientation to an xyz orientation. This is done in four steps:
+    1. Randomly translate the binary system x,y,z. The range of translation is restricted between (-COM, COM) in each perpendicular direction, 
+    where COM is the center of mass of the binary system.
+    2. Randomly rotate the binary system about the x-axis by a random inclination angle.
+    3. Randomly rotate the binary system about the z-axis by a random longitude of ascending node angle.
+    4. Randomly rotate the binary system about the normal axis of the orbital plane by a random periapsis angle.
 
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+       DataFrame containing simulation data with position and time columns (detailed_sims)
+    binary_sim : object
+        Simulation object containing initial conditions
+    verification : bool, optional
+        Whether to verify results (default True)
+    return_empirical : bool, optional
+        If True, calculate empirically, if False use stored value (default False)
+
+    Returns:
+    --------
+    Pandas DataFrame
+        DataFrame with updated positions of stars after random geometry transformation.
+    """
+
+    # Find the center of mass of the binary system
+    # Get masses for COM calculation
+    m1, m2 = df['star1_mass'].iloc[0], df['star2_mass'].iloc[0]
+    total_mass = m1 + m2
+
+    # Calculate COM coordinates
+    df['COMx'] = (m1*df['star1_x'] + m2*df['star2_x'])/total_mass
+    df['COMy'] = (m1*df['star1_y'] + m2*df['star2_y'])/total_mass
+    df['COMz'] = (m1*df['star1_z'] + m2*df['star2_z'])/total_mass
+
+    COMx = df['COMx'].mean()
+    COMy = df['COMy'].mean()
+    COMz = df['COMz'].mean()
+
+    # Random translation in x, y, z with range from 
+    translation_x = np.random.uniform(-COMx, COMx)
+    translation_y = np.random.uniform(-COMy, COMy)
+    translation_z = np.random.uniform(-COMz, COMz)
+
+    # Apply translation to positions
+    df['star1_x'] += translation_x
+    df['star1_y'] += translation_y
+    df['star1_z'] += translation_z
+    df['star2_x'] += translation_x
+    df['star2_y'] += translation_y
+    df['star2_z'] += translation_z
+
+    # Random inclination about the xy plane, longitude of ascending node about positive x-axis, and periapsis within the orbital plane
+    inclination = np.random.uniform(0, np.pi)  # Random inclination between 0 and pi
+    longitude_of_ascending_node = np.random.uniform(0, 2 * np.pi)  # Random longitude of ascending node between 0 and 2*pi
+    periapsis = np.random.uniform(0, 2 * np.pi) # Random periapsis between 0 and 2*pi
+
+    new_geometry = f"New geometry inclination: {inclination}, longitude of ascending node: {longitude_of_ascending_node}, periapsis: {periapsis}"
+
+    # Apply inclination using Rodrigues' rotation matrix
+    R = rotate_about_axis([1, 0, 0], inclination)  # Rotate about x-axis by inclination angle
+
+    rel_star1 = np.stack([
+        df['star1_x'] - df['COMx'],
+        df['star1_y'] - df['COMy'],
+        df['star1_z'] - df['COMz']], axis = 1)  # Relative position of star1 from COM (Shape: (N, 3))
+    
+    rel_star2 = np.stack([
+        df['star2_x'] - df['COMx'],
+        df['star2_y'] - df['COMy'],
+        df['star2_z'] - df['COMz']], axis = 1)  # Relative position of star2 from COM (Shape: (N, 3))
+
+    rotated_rel_star1 = R @ rel_star1.T # Rotated relative position of star1 (Shape: (3, N))
+    rotated_rel_star2 = R @ rel_star2.T # Rotated relative position of star2 (Shape: (3, N))
+
+    df['star1_x'] = rotated_rel_star1[:, 0] + df['COMx']
+    df['star1_y'] = rotated_rel_star1[:, 1] + df['COMy']
+    df['star1_z'] = rotated_rel_star1[:, 2] + df['COMz']
+    df['star2_x'] = rotated_rel_star2[:, 0] + df['COMx']
+    df['star2_y'] = rotated_rel_star2[:, 1] + df['COMy']
+    df['star2_z'] = rotated_rel_star2[:, 2] + df['COMz']
+    
+    # Apply longitude of ascending node usinig Rodrigues' rotation formula
+    R = rotate_about_axis([0, 0, 1], longitude_of_ascending_node)  # Rotate about z-axis by longitude of ascending node
+
+    rel_star1 = np.stack([
+        df['star1_x'] - df['COMx'],
+        df['star1_y'] - df['COMy'],
+        df['star1_z'] - df['COMz']], axis = 1)  # Relative position of star1 from COM (Shape: (N, 3))
+    
+    rel_star2 = np.stack([
+        df['star2_x'] - df['COMx'],
+        df['star2_y'] - df['COMy'],
+        df['star2_z'] - df['COMz']], axis = 1)  # Relative position of star2 from COM (Shape: (N, 3))
+
+    rotated_rel_star1 = R @ rel_star1.T # Rotated relative position of star1 (Shape: (3, N))
+    rotated_rel_star2 = R @ rel_star2.T # Rotated relative position of star2 (Shape: (3, N))
+
+    df['star1_x'] = rotated_rel_star1[:, 0] + df['COMx']
+    df['star1_y'] = rotated_rel_star1[:, 1] + df['COMy']
+    df['star1_z'] = rotated_rel_star1[:, 2] + df['COMz']
+    df['star2_x'] = rotated_rel_star2[:, 0] + df['COMx']
+    df['star2_y'] = rotated_rel_star2[:, 1] + df['COMy']
+    df['star2_z'] = rotated_rel_star2[:, 2] + df['COMz']
+
+    # Apply periapsis using Rodrigues' rotation formula
+    # Calculate the specific angular momentum vector
+    r_rel = np.stack([
+        df['star2_x'] - df['star1_x'],
+        df['star2_y'] - df['star1_y'],
+        df['star2_z'] - df['star1_z']
+        ], axis=1)
+    v_rel = calculate_velocities(df, binary_sim, verification=False, return_empirical=False)
+    h_vec = np.cross(r_rel, v_rel)
+    h_avg = h_vec.mean(axis=0)
+    h_unit = h_avg / np.linalg.norm(h_avg)
+    R = rotate_about_axis(h_unit, periapsis) # Rotational matrix about the normal axis of the orbital plane
+
+    rel_star1 = np.stack([
+        df['star1_x'] - df['COMx'],
+        df['star1_y'] - df['COMy'],
+        df['star1_z'] - df['COMz']], axis = 1)  # Relative position of star1 from COM (Shape: (N, 3))
+    
+    rel_star2 = np.stack([
+        df['star2_x'] - df['COMx'],
+        df['star2_y'] - df['COMy'],
+        df['star2_z'] - df['COMz']], axis = 1)  # Relative position of star2 from COM (Shape: (N, 3))
+
+    rotated_rel_star1 = R @ rel_star1.T # Rotated relative position of star1 (Shape: (3, N))
+    rotated_rel_star2 = R @ rel_star2.T # Rotated relative position of star2 (Shape: (3, N))
+
+    df['star1_x'] = rotated_rel_star1[:, 0] + df['COMx']
+    df['star1_y'] = rotated_rel_star1[:, 1] + df['COMy']
+    df['star1_z'] = rotated_rel_star1[:, 2] + df['COMz']
+    df['star2_x'] = rotated_rel_star2[:, 0] + df['COMx']
+    df['star2_y'] = rotated_rel_star2[:, 1] + df['COMy']
+    df['star2_z'] = rotated_rel_star2[:, 2] + df['COMz']
+    
+    # Check for verificaiton
+    if verification:
+        # Rebound verification
+        import rebound
+        test_df = pd.DataFrame(columns=['star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z', 'Inclination', 'Longitude of ascending node'])
+        sim = rebound.Simulation()
+        sim.units = binary_sim.units
+        sim.add(m=binary_sim.star1_mass, x=binary_sim.star1_pos[0], y=binary_sim.star1_pos[1], z=binary_sim.star1_pos[2], 
+                vx=binary_sim.star1_momentum[0] / binary_sim.star1_mass, vy=binary_sim.star1_momentum[1] / binary_sim.star1_mass, vz=binary_sim.star1_momentum[2] / binary_sim.star1_mass)
+        sim.add(m=binary_sim.star2_mass, x=binary_sim.star2_pos[0], y=binary_sim.star2_pos[1], z=binary_sim.star2_pos[2], 
+                vx=binary_sim.star2_momentum[0] / binary_sim.star2_mass, vy=binary_sim.star2_momentum[1] / binary_sim.star2_mass, vz=binary_sim.star2_momentum[2] / binary_sim.star2_mass)
+
+        for time in df['time']:  # Follow the time in the DataFrame
+            sim.integrate(time)  # Integrate the simulation to the current time
+            p1 = sim.particles[0]
+            p2 = sim.particles[1]
+            orbit = p2.orbit(primary=p1)  # Calculate orbital elements
+            detailed_row = {
+                'star1_x': p1.x,
+                'star1_y': p1.y,
+                'star1_z': p1.z,
+                'star2_x': p2.x,
+                'star2_y': p2.y,
+                'star2_z': p2.z,
+                'inc': orbit.inc,  # Inclination
+                'Omega': orbit.Omega  # Longitude of ascending node
+            }
+            test_df = pd.concat([test_df, pd.DataFrame([detailed_row])])
+        
+        # Check for a few random rows to ensure the transformation is correct
+        for i in np.random.uniform(0, len(df), 10).astype(int):
+            df_row = df.iloc[i]
+            test_row = test_df.iloc[i]
+            assert abs(df_row['star1_x'] - test_row['star1_x']) < 0.02 * test_row['star1_x'], f"{df_row['star1_x']} and {test_row['star1_x']} are not within 2% of each other"
+            assert abs(df_row['star1_y'] - test_row['star1_y']) < 0.02 * test_row['star1_y'], f"{df_row['star1_y']} and {test_row['star1_y']} are not within 2% of each other"
+            assert abs(df_row['star1_z'] - test_row['star1_z']) < 0.02 * test_row['star1_z'], f"{df_row['star1_z']} and {test_row['star1_z']} are not within 2% of each other"
+            assert abs(df_row['star2_x'] - test_row['star2_x']) < 0.02 * test_row['star2_x'], f"{df_row['star2_x']} and {test_row['star2_x']} are not within 2% of each other"
+            assert abs(df_row['star2_y'] - test_row['star2_y']) < 0.02 * test_row['star2_y'], f"{df_row['star2_y']} and {test_row['star2_y']} are not within 2% of each other"
+            assert abs(df_row['star2_z'] - test_row['star2_z']) < 0.02 * test_row['star2_z'], f"{df_row['star2_z']} and {test_row['star2_z']} are not within 2% of each other"
+
+        
+    return df
+
+
+# Helper function to rotate vectors about an arbitrary axis using Rodrigues' rotation formula
+def rotate_about_axis(axis, theta):
+    """
+    Rotate 3D vectors around an arbitrary axis.
+
+    Parameters:
+        axis : list or array of 3 floats
+            Rotation axis direction (does not need to be unit length).
+        theta : float
+            Rotation angle in radians (positive = counterclockwise around axis).
+
+    Returns:
+        rotated_vectors : list of [x, y, z]
+            Rotated vectors.
+    """
+    axis = np.array(axis, dtype=float)
+
+    # Normalize the axis vector
+    axis = axis / np.linalg.norm(axis)
+    x, y, z = axis
+    cos_t = np.cos(theta)
+    sin_t = np.sin(theta)
+    one_minus_cos = 1 - cos_t
+
+    # Rodrigues' rotation matrix
+    R = np.array([
+        [cos_t + x*x*one_minus_cos,
+         x*y*one_minus_cos - z*sin_t,
+         x*z*one_minus_cos + y*sin_t],
+
+        [y*x*one_minus_cos + z*sin_t,
+         cos_t + y*y*one_minus_cos,
+         y*z*one_minus_cos - x*sin_t],
+
+        [z*x*one_minus_cos - y*sin_t,
+         z*y*one_minus_cos + x*sin_t,
+         cos_t + z*z*one_minus_cos]
+    ])
+
+    return R
 
