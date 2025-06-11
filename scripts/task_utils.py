@@ -383,6 +383,10 @@ def random_geometry(df, binary_sim, verification=True):
     df['star2_x'] += translation_x
     df['star2_y'] += translation_y
     df['star2_z'] += translation_z
+    df['COMx'] += translation_x
+    df['COMy'] += translation_y
+    df['COMz'] += translation_z
+        
 
     # Random inclination about the xy plane, longitude of ascending node about positive x-axis, and argument of pericenter within the orbital plane
     inclination = np.random.uniform(0, np.pi)  # Random inclination between 0 and pi
