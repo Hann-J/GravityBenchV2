@@ -206,7 +206,7 @@ Msun = 1.989e30  # kg
 
 # Preconfigured scenario variations
 variations = {
-    '21.3 M, 3.1 M, Face_on_projection': BinaryScenario('21.3 M, 3.1 M', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 8e12], [-3e12, -8e12, -3e12], ellipticity=0.6, face_on_projection=True)}
+    '21.3 M, 3.1 M': BinaryScenario('21.3 M, 3.1 M', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 0], [-3e12, -8e12, 0], ellipticity=0.6, face_on_projection=False)}
 #    '9.6 M, 3.1 M': BinaryScenario('9.6 M, 3.1 M', 9.6*Msun, 3.1*Msun, [-1e12, 6e12, 1e9], [-1e12, 3e12, 6.3e9], ellipticity=0.6),
 #    '0.18 M, 0.63 M': BinaryScenario('0.18 M, 0.63 M', 0.18*Msun, 0.63*Msun, [7e11, 2e11, 7e11], [2e11, 1e11, -3e12], ellipticity=0.6),
 #    '9.6 M, 3.1 M, Proper Motion': BinaryScenario('9.6 M, 3.1 M, Proper Motion', 9.6*Msun, 3.1*Msun, [4e12, 3e12, 5e12], [2e12, 3e12, -1e12], ellipticity=0.8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e3),
@@ -292,8 +292,8 @@ def get_scenario_test_new_variation(scenario_name, new_variation, scenario_folde
     ).Scenario(new_variation)
 
 #for variation in variations.values():
-#    variation.create_binary(
-#        "Test scenario creation",
-#        "('m', 's', 'kg')",
-#        skip_simulation=False
-#    )
+    variation.create_binary(
+        "Test scenario creation",
+        "('m', 's', 'kg')",
+        skip_simulation=False
+    )
