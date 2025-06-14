@@ -8,8 +8,9 @@ import scripts.task_utils as task_utils
 #Assumes that inclination is constant throughout
 
 class Scenario:
-    def __init__(self, scenario_creator, skip_simulation=False):
+    def __init__(self, scenario_creator, face_on_projection=False, skip_simulation=False):
         self.scenario_creator = scenario_creator
+        self.face_on_projection = face_on_projection
 
         prompt = """Determine the angle of inclination of system's orbit. Take the xy plane as the reference plane, and measure the angle from the positive x-axis."""
         final_answer_units = "rad"
@@ -33,38 +34,45 @@ class Scenario:
             indices = np.linspace(0, len(df) - 1, N_obs)
             df = df.iloc[indices].reset_index(drop=True)
 
-        # Calculate the unit vector of the orbital plane with angular momentum vector
-        # Calculate relative positions
-        df['rel_x'] = df['star2_x'] - df['star1_x']
-        df['rel_y'] = df['star2_y'] - df['star1_y']
-        df['rel_z'] = df['star2_z'] - df['star1_z']
-        
-        # Calculate relative velocities using task_utils
-        _, _, _, star2_vx, star2_vy, star2_vz = task_utils.calculate_velocities(df, self.binary_sim, verification=verification, return_empirical=return_empirical)
-        star1_vx, star1_vy, star1_vz, _, _, _ = task_utils.calculate_velocities(df, self.binary_sim, verification=verification, return_empirical=return_empirical)
-        
-        df['rel_vx'] = star2_vx - star1_vx
-        df['rel_vy'] = star2_vy - star1_vy
-        df['rel_vz'] = star2_vz - star1_vz
-        
-        # Compute the specific angular momentum components
-        h_x = (df['rel_y'] * df['rel_vz'] - df['rel_z'] * df['rel_vy']).mean()
-        h_y  = (df['rel_z'] * df['rel_vx'] - df['rel_x'] * df['rel_vz']).mean()
-        h_z = (df['rel_x'] * df['rel_vy'] - df['rel_y'] * df['rel_vx']).mean()
+        # If face_on_projection is False, we have the full data to calculate the inclination
+        if not self.face_on_projection:
+            # Calculate the unit vector of the orbital plane with angular momentum vector
+            # Calculate relative positions
+            df['rel_x'] = df['star2_x'] - df['star1_x']
+            df['rel_y'] = df['star2_y'] - df['star1_y']
+            df['rel_z'] = df['star2_z'] - df['star1_z']
+            
+            # Calculate relative velocities using task_utils
+            _, _, _, star2_vx, star2_vy, star2_vz = task_utils.calculate_velocities(df, self.binary_sim, verification=verification, return_empirical=return_empirical)
+            star1_vx, star1_vy, star1_vz, _, _, _ = task_utils.calculate_velocities(df, self.binary_sim, verification=verification, return_empirical=return_empirical)
+            
+            df['rel_vx'] = star2_vx - star1_vx
+            df['rel_vy'] = star2_vy - star1_vy
+            df['rel_vz'] = star2_vz - star1_vz
+            
+            # Compute the specific angular momentum components
+            h_x = (df['rel_y'] * df['rel_vz'] - df['rel_z'] * df['rel_vy']).mean()
+            h_y  = (df['rel_z'] * df['rel_vx'] - df['rel_x'] * df['rel_vz']).mean()
+            h_z = (df['rel_x'] * df['rel_vy'] - df['rel_y'] * df['rel_vx']).mean()
 
-        #computer the specific angular momentum vector
-        h_magnitude = np.sqrt(h_x**2 + h_y**2 + h_z**2)
-        h = np.array([h_x, h_y, h_z]) / h_magnitude
+            # Compute the specific angular momentum vector
+            h_magnitude = np.sqrt(h_x**2 + h_y**2 + h_z**2)
+            h = np.array([h_x, h_y, h_z]) / h_magnitude
 
-        # Calculate the inclination angle, this is done through the angle between the positive z-axis and the z-component unit vector of the specific angular momentum vector
-        empirical_inc = np.arccos(h[2]) # Ensures radian is positive, measured from the positive z-axis
+            # Calculate the inclination angle, this is done through the angle between the positive z-axis and the z-component unit vector of the specific angular momentum vector
+            empirical_inc = np.arccos(h[2]) # Ensures radian is positive, measured from the positive z-axis
+        
+        else:
+            # face_on_projection is True, x = 0
+            df['rel_y'] = df['star2_y'] - df['star1_y']
+            df['rel_z'] = df['star2_z'] - df['star1_z']
 
 
         # verification, inclinaiton is usually constant throughout the simulation, so we can use the first value
         inc_rebound = df['inclination'].iloc[0]
         if verification:
             assert abs(empirical_inc - inc_rebound) < 0.01 * inc_rebound, f"{empirical_inc} and {inc_rebound} are not within 1% of each other"
-        
+
         if return_empirical:
             return empirical_inc  # Return the calculated inclination if empirical value is requested
         else:

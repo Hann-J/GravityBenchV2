@@ -19,6 +19,8 @@ from multiprocessing import TimeoutError
 from queue import Empty
 import threading
 import numpy as np
+import pandas as pd
+import scripts.geometry_config as geometry_config
 
 CONFIG_FILE_PATH = 'config.json'
 
@@ -310,7 +312,7 @@ def run_agent_on_scenario(row_wise, scenario, scenario_name, variation_name, mod
 
     return run_results
 
-def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations_total=10,  model='gpt-3.5-turbo', parallel=False, max_observations_per_request=10, req_successful_attempts_per_q=1, reasoning_effort=None):
+def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations_total=10,  model='gpt-3.5-turbo', parallel=False, max_observations_per_request=10, req_successful_attempts_per_q=1, reasoning_effort=None, random_geometry=int[0]):
     """
     Main execution function for running agent on scenarios.
     
@@ -324,6 +326,7 @@ def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations
         max_observations_per_request (int): Max obs per request
         req_successful_attempts_per_q (int): Required successful attempts
         reasoning_effort (str): Reasoning effort for supported models (high, auto, none)
+        random_geometry (int): Each binary variation file is duplicated into n number of random geometry versions tested on the same scenarios
     
     Returns:
         list: All collected results
@@ -348,6 +351,18 @@ def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations
     else:
         print("Please provide a list of scenarios to run or use --simulate-all.")
         return
+
+    # Random geometry handling
+    if random_geometry == 0:
+        pass # No random geometry, proceed normally
+    else:
+        print("INTERNAL: Random geometry enabled. Duplicating files for scenarios.")
+        for scenario_name in scenarios_to_run:
+            for variation_name in scenario_name['variations']:
+                df = pd.read_csv(f"scenarios/{scenario_name}/{variation_name}.csv")  # Load the scenario file
+                for i in range(random_geometry):
+                    random_variation = geometry_config.random_geometry(df, verification=False) # Returns a named variation
+                    scenario_name['variations'].append(random_variation)
 
     # Parallel execution setup
     if parallel:
@@ -403,6 +418,17 @@ def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations
                 all_results.extend(run_results)
             save_run_output(all_results, output_dir)
     
+    # Delete random geometry files for next setup
+    for scenario_name in scenarios_to_run:
+        for variation_name in scenario_name['variations']:
+            if "inc" in variation_name:
+                file_path_detailed = f"scenarios/detailed_sims/{variation_name}.csv"
+                file_path_sims = f"scenarios/sims/{variation_name}.csv"
+                if os.path.exists(file_path_detailed):
+                    os.remove(file_path_detailed)
+                if os.path.exists(file_path_sims):
+                    os.remove(file_path_sims)
+
     return all_results
 
 def run_agent_on_scenario_star(args):
@@ -460,6 +486,7 @@ if __name__ == "__main__":
                        help='List of specific scenarios to run')
     parser.add_argument('--max-observations-total', type=int, default=100,
                        help='Total observation budget for row-wise mode')
+    parser.add_argument('--random-geometry', type=int, default=0,)
     
     # Model selection
     parser.add_argument('--model', type=str, default='gpt-4o-mini',

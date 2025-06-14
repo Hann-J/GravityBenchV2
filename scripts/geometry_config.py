@@ -1,5 +1,11 @@
 
+"""
+This script contains a function to randomly transform the geometry of a binary system from an xy orientation to an xyz orientation.
 
+The function writes to two CSV files, one to scenarios/detailed_sims and one to scenarios/sims. A rebound simulation is run with the new geometry,
+and the results are saved compared to the original tranformed DataFrame. However, their differences differ by a very small amount, that cascades a larger amount as 
+time passes. Nonetheless, the differences are usually small enough to be negligible, but the rebound simulation data is used as a baseline for more accuracy.
+"""
 
 import numpy as np
 import pandas as pd
@@ -337,9 +343,10 @@ def random_geometry(df, file_name:str, verification=False):
                 'eccentricity', 'inclination', 'longitude_of_ascending_node', 'argument_of_periapsis','true_anomaly', 'mean_anomaly', 
                 'time_of_pericenter_passage', 'radial_distance_from_reference'
             ])
-    
-    sim_df = sim_df[['time', 'star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z', 'inclination',
-                     'longitude_of_ascending_node', 'argument_of_periapsis']]
+
+# Testing the transformation    
+#    sim_df = sim_df[['time', 'star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z', 'inclination',
+#                     'longitude_of_ascending_node', 'argument_of_periapsis']]
 
 # Manually transformed DataFrame        
 #    csv_file_detailed = f"scenarios/detailed_sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
@@ -358,15 +365,15 @@ def random_geometry(df, file_name:str, verification=False):
     if verification:
         # Check for a few random rows to ensure the transformation is correct
         round = 0
-        for i in np.random.uniform(0, len(df), 10).astype(int):
+        for i in np.random.uniform(0, len(df), 100).astype(int):
             df_row = df.iloc[i]
             test_row = sim_df.iloc[i]
-            assert abs(df_row['star1_x'] - test_row['star1_x']) < 0.02 * abs(test_row['star1_x']), f"{df_row['star1_x']} and {test_row['star1_x']} are not within 2% of each other in {i}"
-            assert abs(df_row['star1_y'] - test_row['star1_y']) < 0.02 * abs(test_row['star1_y']), f"{df_row['star1_y']} and {test_row['star1_y']} are not within 2% of each other in {i}"
-            assert abs(df_row['star1_z'] - test_row['star1_z']) < 0.02 * abs(test_row['star1_z']), f"{df_row['star1_z']} and {test_row['star1_z']} are not within 2% of each othe in {i}"
-            assert abs(df_row['star2_x'] - test_row['star2_x']) < 0.02 * abs(test_row['star2_x']), f"{df_row['star2_x']} and {test_row['star2_x']} are not within 2% of each other in {i}"
-            assert abs(df_row['star2_y'] - test_row['star2_y']) < 0.02 * abs(test_row['star2_y']), f"{df_row['star2_y']} and {test_row['star2_y']} are not within 2% of each other in {i}"
-            assert abs(df_row['star2_z'] - test_row['star2_z']) < 0.02 * abs(test_row['star2_z']), f"{df_row['star2_z']} and {test_row['star2_z']} are not within 2% of each other in {i}"
+            assert abs(df_row['star1_x'] - test_row['star1_x']) < 0.0000001 * abs(test_row['star1_x']), f"{df_row['star1_x']} and {test_row['star1_x']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star1_y'] - test_row['star1_y']) < 0.0000001 * abs(test_row['star1_y']), f"{df_row['star1_y']} and {test_row['star1_y']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star1_z'] - test_row['star1_z']) < 0.0000001 * abs(test_row['star1_z']), f"{df_row['star1_z']} and {test_row['star1_z']} are not within 0.00001% of each othe in {i}"
+            assert abs(df_row['star2_x'] - test_row['star2_x']) < 0.0000001 * abs(test_row['star2_x']), f"{df_row['star2_x']} and {test_row['star2_x']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star2_y'] - test_row['star2_y']) < 0.0000001 * abs(test_row['star2_y']), f"{df_row['star2_y']} and {test_row['star2_y']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star2_z'] - test_row['star2_z']) < 0.0000001 * abs(test_row['star2_z']), f"{df_row['star2_z']} and {test_row['star2_z']} are not within 0.00001% of each other in {i}"
             print(f"Row {i} passed verification for round {round}.")
             round += 1
 
@@ -415,7 +422,7 @@ def rotate_about_axis(axis, theta):
 
     return R
 
-# Test
+#Test
 #df = pd.read_csv(f"scenarios/detailed_sims/21.3 M, 3.1 M.csv")
 #random_geometry(df, file_name="21.3 M, 3.1 M", verification=True)
 #print("task_utils.py executed successfully.")
