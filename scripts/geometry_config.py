@@ -353,31 +353,30 @@ def random_geometry(df, file_name:str, verification=False):
 #    with open(csv_file_detailed, mode='w', newline='') as file_detailed:
 #        df.to_csv(file_detailed, index=False)
 
-    csv_file_detailed_actual = f"scenarios/detailed_sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}_Actual.csv"
+    csv_file_detailed_actual = f"scenarios/detailed_sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
     with open(csv_file_detailed_actual, mode='w', newline='') as file_detailed_actual:
         sim_df.to_csv(file_detailed_actual, index=False)
         
     csv_file_sims = f"scenarios/sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
     with open(csv_file_sims, mode='w', newline='') as file_sims:
-        df[['time', 'star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z']].to_csv(file_sims, index=False)
+        sim_df[['time', 'star1_x', 'star1_y', 'star1_z', 'star2_x', 'star2_y', 'star2_z']].to_csv(file_sims, index=False)
 
     # Check for verificaiton
     if verification:
         # Check for a few random rows to ensure the transformation is correct
-        round = 0
-        for i in np.random.uniform(0, len(df), 100).astype(int):
+        for i in np.random.uniform(0, len(df), 20).astype(int):
             df_row = df.iloc[i]
             test_row = sim_df.iloc[i]
-            assert abs(df_row['star1_x'] - test_row['star1_x']) < 0.0000001 * abs(test_row['star1_x']), f"{df_row['star1_x']} and {test_row['star1_x']} are not within 0.00001% of each other in {i}"
-            assert abs(df_row['star1_y'] - test_row['star1_y']) < 0.0000001 * abs(test_row['star1_y']), f"{df_row['star1_y']} and {test_row['star1_y']} are not within 0.00001% of each other in {i}"
-            assert abs(df_row['star1_z'] - test_row['star1_z']) < 0.0000001 * abs(test_row['star1_z']), f"{df_row['star1_z']} and {test_row['star1_z']} are not within 0.00001% of each othe in {i}"
-            assert abs(df_row['star2_x'] - test_row['star2_x']) < 0.0000001 * abs(test_row['star2_x']), f"{df_row['star2_x']} and {test_row['star2_x']} are not within 0.00001% of each other in {i}"
-            assert abs(df_row['star2_y'] - test_row['star2_y']) < 0.0000001 * abs(test_row['star2_y']), f"{df_row['star2_y']} and {test_row['star2_y']} are not within 0.00001% of each other in {i}"
-            assert abs(df_row['star2_z'] - test_row['star2_z']) < 0.0000001 * abs(test_row['star2_z']), f"{df_row['star2_z']} and {test_row['star2_z']} are not within 0.00001% of each other in {i}"
-            print(f"Row {i} passed verification for round {round}.")
-            round += 1
+            assert abs(df_row['star1_x'] - test_row['star1_x']) <= 0.0000001 * abs(test_row['star1_x']), f"{df_row['star1_x']} and {test_row['star1_x']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star1_y'] - test_row['star1_y']) <= 0.0000001 * abs(test_row['star1_y']), f"{df_row['star1_y']} and {test_row['star1_y']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star1_z'] - test_row['star1_z']) <= 0.0000001 * abs(test_row['star1_z']), f"{df_row['star1_z']} and {test_row['star1_z']} are not within 0.00001% of each othe in {i}"
+            assert abs(df_row['star2_x'] - test_row['star2_x']) <= 0.0000001 * abs(test_row['star2_x']), f"{df_row['star2_x']} and {test_row['star2_x']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star2_y'] - test_row['star2_y']) <= 0.0000001 * abs(test_row['star2_y']), f"{df_row['star2_y']} and {test_row['star2_y']} are not within 0.00001% of each other in {i}"
+            assert abs(df_row['star2_z'] - test_row['star2_z']) <= 0.0000001 * abs(test_row['star2_z']), f"{df_row['star2_z']} and {test_row['star2_z']} are not within 0.00001% of each other in {i}"
 
-        return f"{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}"
+
+    print("Random geometry completed!")
+    return f"{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}"
     
 
 

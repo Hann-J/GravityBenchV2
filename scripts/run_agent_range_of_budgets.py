@@ -2,6 +2,7 @@ import os
 import argparse
 import json
 import time
+import copy
 import tqdm
 import agents.tabular_agent as TabularAgent
 import datetime
@@ -12,6 +13,8 @@ import multiprocessing
 from multiprocessing import TimeoutError
 import numpy as np
 from queue import Empty
+import scripts.geometry_config as geometry_config
+import pandas as pd
 
 # Load configuration from config.json (like run_agent.py)
 CONFIG_FILE_PATH = 'config.json'
@@ -246,7 +249,7 @@ def run_agent_on_scenario(row_wise, scenario, scenario_name, variation_name, mod
             scenario.binary_sim.number_of_observations_requested = 0
     return run_results
 
-def main(simulate_all=False, scenario_filenames=None, model='gpt-3.5-turbo', parallel=False, skip_simulation=False, variation_name=None, observation_ranges=None):
+def main(simulate_all=False, scenario_filenames=None, model='gpt-3.5-turbo', parallel=False, skip_simulation=False, variation_name=None, observation_ranges=None, random_geometry=int(0)):
     """
     Main function to run the agent on scenarios with different max_observations_total values.
     """
@@ -285,6 +288,33 @@ def main(simulate_all=False, scenario_filenames=None, model='gpt-3.5-turbo', par
             else:
                 scenarios_to_run[scenario_name]['variations'] = []
 
+    # Random geometry handling
+    if random_geometry == 0:
+        pass # No random geometry, proceed normally
+    else:
+        print("INTERNAL: Random geometry enabled. Duplicating files for scenarios.")
+        variations_set = {}
+        transformed_variations = set() # Keep track of transformed variations so that it can be used for other scenarios, ensure uniqueness
+        base_scenarios = copy.deepcopy(scenarios_to_run)
+
+        # Loop over the variations to find all unique variations
+        for scenario_name, scenario_set_ups in scenarios_to_run.items():
+            for variation_name in scenario_set_ups['variations']:
+                transformed_variations.add(variation_name)
+
+        # Then apply random_geometry and set each randomly transformed variations into a dictionary with the original variation as key
+        for variation in transformed_variations:
+            df = pd.read_csv(f"scenarios/detailed_sims/{variation}.csv")  # Load the variation file
+            variations_set[variation] = [] # Empty list for the unique variation
+            for i in range(random_geometry):
+                random_variation = geometry_config.random_geometry(df, file_name=variation, verification=False) # Returns a named random variation
+                variations_set[variation].append(random_variation) # Update the dictionary with new random geometry variations
+
+        # Loop over the original scenarios_to_run, if a variation is detected, append the randomly transformed variations
+        for scenario_name, scenario_set_ups in base_scenarios.items():
+            for variation_name in scenario_set_ups['variations']: # Every possible variations has been transformed, so no need to check for other variations
+                scenarios_to_run[scenario_name]['variations'].extend(variations_set[variation_name])
+        
     if parallel:
         tasks = []
         for max_obs in observation_ranges:
@@ -342,6 +372,18 @@ def main(simulate_all=False, scenario_filenames=None, model='gpt-3.5-turbo', par
                     all_results.extend(run_results)
                 save_run_output(all_results, output_dir)
     
+    # Delete random geometry files for next run, use the variations_set dictionary from before to remove all randomly transformed variations
+    if random_geometry != 0:
+        for variation_list in variations_set.values(): # .values() return a lists of all the new variation names that is randomly transformed from an original variation
+            for variation in variation_list:
+                file_path_detailed = f"scenarios/detailed_sims/{variation}.csv"
+                file_path_sims = f"scenarios/sims/{variation}.csv"
+                if os.path.exists(file_path_detailed):
+                    os.remove(file_path_detailed)
+                if os.path.exists(file_path_sims):
+                    os.remove(file_path_sims)
+        print("INTERNAL: Random variation files has been deleted")
+
     return all_results
 
 def run_agent_on_scenario_star(args):
@@ -397,6 +439,9 @@ if __name__ == "__main__":
         '--variation', type=str,
         help='Specific variation name to run (e.g., "21.3 M, 3.1 M")'
     )
+    parser.add_argument(
+        '--random-geometry', type=int, default=0,
+        help='The number of random geometry transformation for each variation, default is set to 0 and 0 will not run this version')
 
     args = parser.parse_args()
 
@@ -421,5 +466,6 @@ if __name__ == "__main__":
         parallel=args.parallel,
         skip_simulation=args.skip_simulation,
         variation_name=args.variation,
-        observation_ranges=observation_ranges  # Pass the ranges to main
+        observation_ranges=observation_ranges,  # Pass the ranges to main
+        random_geometry=args.random_geometry
     )

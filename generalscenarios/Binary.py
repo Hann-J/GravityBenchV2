@@ -91,11 +91,11 @@ class Binary():
             self.final_answer_prompt += f"You must provide your answer in units of {self.final_answer_units}."
         
         # Base prompt configuration
-        self.full_table_tools_and_data_prompt = f"1. A DataFrame `df` containing columns: {', '.join(self.df.columns)}.\n2. A code interpreter with `df` pre-loaded that can execute Python code."
         self.row_wise_prompt = ""
 
         # Prompt without face_on_projection
         if not self.face_on_projection:
+            self.full_table_tools_and_data_prompt = f"1. A DataFrame `df` containing columns: {', '.join(self.df.columns)}.\n2. A code interpreter with `df` pre-loaded that can execute Python code."
             self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position over time, (t,x,y,z), in units of {self.units_string}.
         
 ### Problem Description
@@ -105,10 +105,11 @@ class Binary():
 ### Additional Instructions
 To complete this task, you have access to the following tools and data:"""
 
+
         # Prompt with face-on projection
         else:
-            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the y-z plane over time, (t,0,y,z), in units of {self.units_string}. 
-            You have to take into account the angle of inclination and the longitude of ascending node of the orbital plane, which can greatly affect the problem you are tasked to solve.
+            self.full_table_tools_and_data_prompt = f"1. A DataFrame `df` containing columns: {', '.join(self.df.columns)}. Remember that columns 'star1_x' and 'star2_x' will always be zero since the stars are projected onto the yz plane.\n2. A code interpreter with `df` pre-loaded that can execute Python code."
+            self.prompt = f"""You are tasked with solving the following physics problem related to a binary star system. You are provided observations of each star's position projected onto the y-z plane over time, (t,0,y,z), in units of {self.units_string}. You have to take into account the angle of inclination with respect to the xy-plane, the longitude of ascending node with resecpect to the positive x-axis and the arguemnt of periapsis, which can greatly affect the problem you are tasked to solve.
 
 ### Problem Description
 {self.task}

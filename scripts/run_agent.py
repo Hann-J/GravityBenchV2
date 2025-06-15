@@ -6,9 +6,12 @@ Handles scenario loading, parallel execution, timeouts, result collection and re
 import os
 import importlib
 import argparse
+import copy
 import json
 import time
 import tqdm
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import agents.tabular_agent as TabularAgent
 import datetime
 import scripts.format_utils as format_utils
@@ -21,6 +24,8 @@ import threading
 import numpy as np
 import pandas as pd
 import scripts.geometry_config as geometry_config
+from dotenv import load_dotenv
+load_dotenv()
 
 CONFIG_FILE_PATH = 'config.json'
 
@@ -312,7 +317,7 @@ def run_agent_on_scenario(row_wise, scenario, scenario_name, variation_name, mod
 
     return run_results
 
-def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations_total=10,  model='gpt-3.5-turbo', parallel=False, max_observations_per_request=10, req_successful_attempts_per_q=1, reasoning_effort=None, random_geometry=int[0]):
+def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations_total=10,  model='gpt-3.5-turbo', parallel=False, max_observations_per_request=10, req_successful_attempts_per_q=1, reasoning_effort=None, random_geometry=0):
     """
     Main execution function for running agent on scenarios.
     
@@ -357,12 +362,28 @@ def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations
         pass # No random geometry, proceed normally
     else:
         print("INTERNAL: Random geometry enabled. Duplicating files for scenarios.")
-        for scenario_name in scenarios_to_run:
-            for variation_name in scenario_name['variations']:
-                df = pd.read_csv(f"scenarios/{scenario_name}/{variation_name}.csv")  # Load the scenario file
-                for i in range(random_geometry):
-                    random_variation = geometry_config.random_geometry(df, verification=False) # Returns a named variation
-                    scenario_name['variations'].append(random_variation)
+        variations_set = {}
+        transformed_variations = set() # Keep track of transformed variations so that it can be used for other scenarios, ensure uniqueness
+        base_scenarios = copy.deepcopy(scenarios_to_run)
+
+        # Loop over the variations to find all unique variations
+        for scenario_name, scenario_set_ups in scenarios_to_run.items():
+            for variation_name in scenario_set_ups['variations']:
+                transformed_variations.add(variation_name)
+
+        # Then apply random_geometry and set each randomly transformed variations into a dictionary with the original variation as key
+        for variation in transformed_variations:
+            df = pd.read_csv(f"scenarios/detailed_sims/{variation}.csv")  # Load the variation file
+            variations_set[variation] = [] # Empty list for the unique variation
+            for i in range(random_geometry):
+                random_variation = geometry_config.random_geometry(df, file_name=variation, verification=False) # Returns a named random variation
+                variations_set[variation].append(random_variation) # Update the dictionary with new random geometry variations
+
+        # Loop over the original scenarios_to_run, if a variation is detected, append the randomly transformed variations
+        for scenario_name, scenario_set_ups in base_scenarios.items():
+            for variation_name in scenario_set_ups['variations']: # Every possible variations has been transformed, so no need to check for other variations
+                scenarios_to_run[scenario_name]['variations'].extend(variations_set[variation_name])
+        
 
     # Parallel execution setup
     if parallel:
@@ -418,16 +439,17 @@ def main(row_wise, simulate_all=False, scenario_filenames=None, max_observations
                 all_results.extend(run_results)
             save_run_output(all_results, output_dir)
     
-    # Delete random geometry files for next setup
-    for scenario_name in scenarios_to_run:
-        for variation_name in scenario_name['variations']:
-            if "inc" in variation_name:
-                file_path_detailed = f"scenarios/detailed_sims/{variation_name}.csv"
-                file_path_sims = f"scenarios/sims/{variation_name}.csv"
+    # Delete random geometry files for next run, use the variations_set dictionary from before to remove all randomly transformed variations
+    if random_geometry != 0:
+        for variation_list in variations_set.values(): # .values() return a lists of all the new variation names that is randomly transformed from an original variation
+            for variation in variation_list:
+                file_path_detailed = f"scenarios/detailed_sims/{variation}.csv"
+                file_path_sims = f"scenarios/sims/{variation}.csv"
                 if os.path.exists(file_path_detailed):
                     os.remove(file_path_detailed)
                 if os.path.exists(file_path_sims):
                     os.remove(file_path_sims)
+        print("INTERNAL: Random variation files has been deleted")
 
     return all_results
 
@@ -486,7 +508,8 @@ if __name__ == "__main__":
                        help='List of specific scenarios to run')
     parser.add_argument('--max-observations-total', type=int, default=100,
                        help='Total observation budget for row-wise mode')
-    parser.add_argument('--random-geometry', type=int, default=0,)
+    parser.add_argument('--random-geometry', type=int, default=0,
+                        help='The number of random geometry transformation for each variation, default is set to 0 and 0 will not run this version')
     
     # Model selection
     parser.add_argument('--model', type=str, default='gpt-4o-mini',
@@ -528,5 +551,6 @@ if __name__ == "__main__":
         parallel=args.parallel,
         max_observations_per_request=args.max_observations_per_request,
         req_successful_attempts_per_q=args.req_successful_attempts_per_q,
-        reasoning_effort=args.reasoning_effort
+        reasoning_effort=args.reasoning_effort,
+        random_geometry=args.random_geometry
     )
