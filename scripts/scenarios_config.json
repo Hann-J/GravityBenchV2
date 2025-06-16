@@ -1,305 +1,212 @@
 {
     "roche_lobe_radius": {
-        "variations": [
-
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "modified_gravity_power_law": {
-        "variations": [
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 70
     },
     "linear_drag": {
-        "variations": [
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "time_fraction_acceleraton_below_mean": {
-        "variations": [
-            "21.3 M, 3.1 M"
-
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "apoastron": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "area_swept_over_time_apo": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "area_swept_over_time_peri": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "avg_distance_COM_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "avg_distance_COM_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "eccentricity": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "kepler_3rd_law": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "mass_largest_star": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "max_acceleration_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 70
     },
     "max_acceleration_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 70
     },
     "max_angular_velocity_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "max_angular_velocity_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "max_momentum_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "max_momentum_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "max_velocity_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "max_velocity_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 20
     },
     "min_acceleration_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_acceleration_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_angular_velocity_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_angular_velocity_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_momentum_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_momentum_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_velocity_star1": {
-        "variations": [
-            "21.3 M, 3.1 M",
-            "9.6 M, 3.1 M",
-            "0.18 M, 0.63 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "min_velocity_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "multiply_mass_period": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "orbital_area_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "orbital_area_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "periastron": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "period": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "reduced_mass": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_major_axis": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_major_axis_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_major_axis_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_minor_axis": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_minor_axis_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "semi_minor_axis_star2": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "specific_angular_momentum": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "K+U": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 40
     },
     "total_mass": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "mass_ratio": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "virial_theorem": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "travel_time_orbital_20per_path": {
-        "variations": [
-            "21.3 M, 3.1 M",
-            "9.6 M, 3.1 M",
-            "0.18 M, 0.63 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 70
     },
     "travel_time_orbital_70per_path": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 15
     },
     "is_bound": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "mass_star1": {
-        "variations": [
-            "21.3 M, 3.1 M"
-        ],
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     },
     "mass_star2": {
+        "variations": [],
+        "correct_threshold_percentage_based_on_100_observations": 5
+    },
+    "angle_of_inclination": {
         "variations": [
-            "21.3 M, 3.1 M"
+            "21.3 M, 3.1 M, FOP"
         ],
+        "correct_threshold_percentage_based_on_100_observations": 5
+    },
+    "longitude_of_ascending_node": {
+        "variations": [],
         "correct_threshold_percentage_based_on_100_observations": 5
     }
 }

@@ -16,7 +16,7 @@ results = []
 # Iterate through all scenario/variation pairs
 for scenario_name, scenario_data in tqdm(scenarios_config.items()):
     for variation in scenario_data['variations']:
-        scenario = get_scenario(scenario_name, variation, skip_simulation=True)
+        scenario = get_scenario(scenario_name, variation)
         
         # Get empirical answers with different observation counts
         empirical_answer = scenario.true_answer(verification=True, return_empirical=True)

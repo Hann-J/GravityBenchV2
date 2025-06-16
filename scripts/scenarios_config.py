@@ -4,6 +4,7 @@ Handles scenario variations, orbital calculations, and integration with rebound 
 """
 import sys
 import os
+import pandas as pd
 
 # Add project root to sys.path so Python can find generalscenarios/
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -206,7 +207,7 @@ Msun = 1.989e30  # kg
 
 # Preconfigured scenario variations
 variations = {
-    '21.3 M, 3.1 M': BinaryScenario('21.3 M, 3.1 M', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 0], [-3e12, -8e12, 0], ellipticity=0.6, face_on_projection=True)}
+    '21.3 M, 3.1 M, FOP': BinaryScenario('21.3 M, 3.1 M, FOP', 21.3*Msun, 3.1*Msun, [-5e12, -7e12, 0], [-3e12, -8e12, 0], ellipticity=0.6, face_on_projection=True)}
 #    '9.6 M, 3.1 M': BinaryScenario('9.6 M, 3.1 M', 9.6*Msun, 3.1*Msun, [-1e12, 6e12, 1e9], [-1e12, 3e12, 6.3e9], ellipticity=0.6),
 #    '0.18 M, 0.63 M': BinaryScenario('0.18 M, 0.63 M', 0.18*Msun, 0.63*Msun, [7e11, 2e11, 7e11], [2e11, 1e11, -3e12], ellipticity=0.6),
 #    '9.6 M, 3.1 M, Proper Motion': BinaryScenario('9.6 M, 3.1 M, Proper Motion', 9.6*Msun, 3.1*Msun, [4e12, 3e12, 5e12], [2e12, 3e12, -1e12], ellipticity=0.8, proper_motion_direction=[1, 1, 0], proper_motion_magnitude=1e3),
@@ -272,11 +273,32 @@ def get_scenario(scenario_name, variation_name, row_wise=False,
 
     # Import scenario module and create instance
     scenario_module = importlib.import_module(f"{scenario_folder}.{scenario_name}")
-    scenario = scenario_module.Scenario(
-        variations[variation_name], 
-        skip_simulation=skip_simulation
-    )
-    
+
+    if "Inc" in variation_name:
+        df = pd.read_csv(f"scenarios/detailed_sims/{variation_name}.csv")
+        star1_m = df['star1_mass'].iloc[0]
+        star2_m = df['star2_mass'].iloc[0]
+        star1_x, star1_y, star1_z = df['star1_x'].iloc[0], df['star1_y'].iloc[0], df['star1_z'].iloc[0]
+        star2_x, star2_y, star2_z = df['star2_x'].iloc[0], df['star2_y'].iloc[0], df['star2_z'].iloc[0]
+        e = df['eccentricity'].iloc[0]
+        if "FOP" in variation_name:
+            projection = True
+        scenario = scenario_module.Scenario(BinaryScenario(variation_name, star1_mass = star1_m, star2_mass=star2_m,
+                                                           star1_pos=[star1_x, star1_y, star1_z], star2_pos=[star2_x, star2_y, star2_z],
+                                                           ellipticity=e, face_on_projection=projection),
+                                            skip_simulation=skip_simulation) # Then run then BinaryScenario with the variation_name and the masses
+
+        # Or other method to split the variation_name
+        #star1_mass, star2_mass = variation_name[:-31].split(',') # Splits the randomly transformed variation to original variation name, and split them to get their masses
+        #mass1 = float(star1_mass.strip().replace(' M', ''))
+        #mass2 = float(star2_mass.strip().replace(' M', ''))
+        #scenario = scenario_module.Scenario(BinaryScenario(variation_name, )) # Then run then BinaryScenario with the variation_name and the masses
+    else:
+        scenario = scenario_module.Scenario(
+            variations[variation_name], 
+            skip_simulation=skip_simulation
+        )
+        
     # Configure observation parameters if needed
     if hasattr(scenario, 'binary_sim') and row_wise:
         scenario.binary_sim.max_observations = max_observations_total

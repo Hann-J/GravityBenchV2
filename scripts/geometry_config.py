@@ -10,6 +10,9 @@ time passes. Nonetheless, the differences are usually small enough to be negligi
 import numpy as np
 import pandas as pd
 import rebound
+import os
+import json
+import sys
 
 
 def random_geometry(df, file_name:str, verification=False):
@@ -353,8 +356,8 @@ def random_geometry(df, file_name:str, verification=False):
 #    with open(csv_file_detailed, mode='w', newline='') as file_detailed:
 #        df.to_csv(file_detailed, index=False)
 
-    csv_file_detailed_actual = f"scenarios/detailed_sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
-    with open(csv_file_detailed_actual, mode='w', newline='') as file_detailed_actual:
+    csv_file_detailed_sims = f"scenarios/detailed_sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
+    with open(csv_file_detailed_sims, mode='w', newline='') as file_detailed_actual:
         sim_df.to_csv(file_detailed_actual, index=False)
         
     csv_file_sims = f"scenarios/sims/{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}.csv"
@@ -374,10 +377,35 @@ def random_geometry(df, file_name:str, verification=False):
             assert abs(df_row['star2_y'] - test_row['star2_y']) <= 0.0000001 * abs(test_row['star2_y']), f"{df_row['star2_y']} and {test_row['star2_y']} are not within 0.00001% of each other in {i}"
             assert abs(df_row['star2_z'] - test_row['star2_z']) <= 0.0000001 * abs(test_row['star2_z']), f"{df_row['star2_z']} and {test_row['star2_z']} are not within 0.00001% of each other in {i}"
 
-
-    print("Random geometry completed!")
     return f"{file_name}_Inc_{inclination:.3f}_Long_{longitude_of_ascending_node:.3f}_Arg_{argument_of_periapsis:.3f}"
-    
+
+# Remove the randomly transformed variations
+def remove_variations():
+    folder_path_detailed = "scenarios/detailed_sims"
+    file_names = os.listdir(folder_path_detailed)
+    for file in file_names:
+        if "Inc" in file:
+            file_path_detailed = f"scenarios/detailed_sims/{file}"
+            file_path_sims = f"scenarios/sims/{file}"
+            if os.path.exists(file_path_detailed):
+                os.remove(file_path_detailed)
+            if os.path.exists(file_path_sims):
+                os.remove(file_path_sims)
+
+    # Update json file
+    json_path = "scripts/scenarios_config.json"
+
+    # Load existing JSON data (if file exists)
+    with open(json_path, 'r') as f:
+        scenario = json.load(f)
+
+    # Update the json file back to original variations
+    for scenario_name, scenario_set_ups in scenario.items():
+        scenario_set_ups['variations'] = [var for var in scenario_set_ups['variations'] if "Inc" not in var]
+
+    with open(json_path, 'w') as f:
+        json.dump(scenario, f, indent=4)
+
 
 
 # Helper function to rotate vectors about an arbitrary axis using Rodrigues' rotation formula
@@ -425,3 +453,7 @@ def rotate_about_axis(axis, theta):
 #df = pd.read_csv(f"scenarios/detailed_sims/21.3 M, 3.1 M.csv")
 #random_geometry(df, file_name="21.3 M, 3.1 M", verification=True)
 #print("task_utils.py executed successfully.")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "remove_variations":
+        remove_variations()

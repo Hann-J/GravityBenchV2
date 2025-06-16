@@ -5,6 +5,7 @@ import traceback
 import pandas as pd
 import numpy as np
 import scipy
+import copy
 import sklearn
 import statsmodels.api as sm
 from dotenv import load_dotenv, find_dotenv
@@ -55,7 +56,7 @@ class Agent:
         max_observations_per_request (int): Maximum number of observations per request (only used if row_wise is True).
         max_observations_total (int): Maximum total number of observations allowed (only used if row_wise is True).
     """
-    def __init__(self, environment, model, row_wise, 
+    def __init__(self, environment, variation_name, model, row_wise, 
                  temperature, max_tokens_per_task, max_tool_calls_per_task, max_execution_time, # New params
                  max_observations_per_request=10, max_observations_total=10, reasoning_effort=None):
         self.environment = environment
@@ -88,6 +89,10 @@ class Agent:
             })
             self.exploration_prompt = self.environment.binary_sim.row_wise_prompt
         else:
+            if "FOP" in variation_name:
+                self.df = copy.deepcopy(self.df)
+                self.df['star1_z'] = 0.0
+                self.df['star2_z'] = 0.0
             self.available_packages.update({
                 "df": self.df
             })

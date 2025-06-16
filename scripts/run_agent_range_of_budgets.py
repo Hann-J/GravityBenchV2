@@ -373,16 +373,16 @@ def main(simulate_all=False, scenario_filenames=None, model='gpt-3.5-turbo', par
                 save_run_output(all_results, output_dir)
     
     # Delete random geometry files for next run, use the variations_set dictionary from before to remove all randomly transformed variations
-    if random_geometry != 0:
-        for variation_list in variations_set.values(): # .values() return a lists of all the new variation names that is randomly transformed from an original variation
-            for variation in variation_list:
-                file_path_detailed = f"scenarios/detailed_sims/{variation}.csv"
-                file_path_sims = f"scenarios/sims/{variation}.csv"
-                if os.path.exists(file_path_detailed):
-                    os.remove(file_path_detailed)
-                if os.path.exists(file_path_sims):
-                    os.remove(file_path_sims)
-        print("INTERNAL: Random variation files has been deleted")
+#    if random_geometry != 0:
+#        for variation_list in variations_set.values(): # .values() return a lists of all the new variation names that is randomly transformed from an original variation
+#            for variation in variation_list:
+#                file_path_detailed = f"scenarios/detailed_sims/{variation}.csv"
+#                file_path_sims = f"scenarios/sims/{variation}.csv"
+#                if os.path.exists(file_path_detailed):
+#                    os.remove(file_path_detailed)
+#                if os.path.exists(file_path_sims):
+#                    os.remove(file_path_sims)
+#        print("INTERNAL: Random variation files has been deleted")
 
     return all_results
 

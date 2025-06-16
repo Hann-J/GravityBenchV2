@@ -8,9 +8,8 @@ import scripts.task_utils as task_utils
 #Assumes that inclination is constant throughout
 
 class Scenario:
-    def __init__(self, scenario_creator, face_on_projection=False, skip_simulation=False):
+    def __init__(self, scenario_creator, skip_simulation=False):
         self.scenario_creator = scenario_creator
-        self.face_on_projection = face_on_projection
 
         prompt = """Determine the angle of inclination of system's orbit. Take the xy plane as the reference plane."""
         final_answer_units = "rad"
